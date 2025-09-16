@@ -2,17 +2,24 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import authRoutes from './routes/auth.js';
+import taskRoutes from './routes/tasks.js';
 
 const app = express();
 
+// Load environment variables from .env file
+dotenv.config();
+
 // CORS Configuration
 const corsOptions = {
-  origin: 'https://tasktrack-api-x8cx.onrender.com.vercel.app',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
 };
 app.use(cors(corsOptions));
 
-// Load environment variables from .env file
-dotenv.config();
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5001;
 
@@ -37,8 +44,17 @@ const connectDB = async () => {
 connectDB();
 // --- End of Connection Logic ---
 
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'TaskTrack API is running' });
+});
+
 app.get('/', (req, res) => {
-  res.send('API is running...');
+  res.send('TaskTrack API is running...');
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

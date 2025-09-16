@@ -1,50 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import axiosInstance from './api/config'
+import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginForm from './components/LoginForm';
+import RegisterForm from './components/RegisterForm';
+import TaskList from './components/TaskList';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [apiStatus, setApiStatus] = useState<string>('')
+const AppContent: React.FC = () => {
+  const { user, logout, loading } = useAuth();
+  const [isLoginMode, setIsLoginMode] = useState(true);
 
-  const testApiConnection = async () => {
-    try {
-      const response = await axiosInstance.get('/health')
-      setApiStatus(`API Status: ${response.status} - ${response.statusText}`)
-    } catch (error) {
-      setApiStatus('API Connection Failed - Server may not be running')
-    }
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="loading-screen">
+          <div className="spinner"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="app">
+        <div className="auth-container">
+          <div className="auth-header">
+            <h1>TaskTrack</h1>
+            <p>Organize your tasks efficiently</p>
+          </div>
+          {isLoginMode ? (
+            <LoginForm onToggleMode={() => setIsLoginMode(false)} />
+          ) : (
+            <RegisterForm onToggleMode={() => setIsLoginMode(true)} />
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-        <button onClick={testApiConnection} style={{ marginTop: '10px' }}>
-          Test API Connection
-        </button>
-        {apiStatus && <p style={{ marginTop: '10px', color: apiStatus.includes('Failed') ? 'red' : 'green' }}>{apiStatus}</p>}
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app">
+      <header className="app-header">
+        <div className="header-content">
+          <h1>TaskTrack</h1>
+          <div className="user-info">
+            <span>Welcome, {user.username}!</span>
+            <button onClick={logout} className="btn btn-outline">
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+      <main className="app-main">
+        <TaskList />
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
