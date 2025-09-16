@@ -1,6 +1,6 @@
 import express from 'express';
 import Task from '../models/Task.js';
-import { authenticateToken, AuthRequest } from '../middleware/auth.js';
+import { authenticateToken, type AuthRequest } from '../middleware/auth.js';
 
 const router = express.Router();
 
