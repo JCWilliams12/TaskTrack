@@ -7,7 +7,7 @@ const app = express();
 
 // CORS Configuration
 const corsOptions = {
-  origin: 'https://your-frontend-url.vercel.app', // Replace with your Vercel URL
+  origin: 'https://tasktrack-api-x8cx.onrender.com.vercel.app',
 };
 app.use(cors(corsOptions));
 
