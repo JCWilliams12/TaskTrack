@@ -2,9 +2,20 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import axiosInstance from './api/config'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [apiStatus, setApiStatus] = useState<string>('')
+
+  const testApiConnection = async () => {
+    try {
+      const response = await axiosInstance.get('/health')
+      setApiStatus(`API Status: ${response.status} - ${response.statusText}`)
+    } catch (error) {
+      setApiStatus('API Connection Failed - Server may not be running')
+    }
+  }
 
   return (
     <>
@@ -24,6 +35,10 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
+        <button onClick={testApiConnection} style={{ marginTop: '10px' }}>
+          Test API Connection
+        </button>
+        {apiStatus && <p style={{ marginTop: '10px', color: apiStatus.includes('Failed') ? 'red' : 'green' }}>{apiStatus}</p>}
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
