@@ -40,13 +40,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Set default authorization header
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
       // Verify token and get user info
-      verifyToken(storedToken);
+      verifyToken();
     } else {
       setLoading(false);
     }
   }, []);
 
-  const verifyToken = async (token: string) => {
+  const verifyToken = async () => {
     try {
       const response = await axiosInstance.get('/auth/me');
       setUser(response.data.user);
