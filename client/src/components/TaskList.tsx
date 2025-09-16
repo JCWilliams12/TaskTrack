@@ -3,7 +3,7 @@ import { useTasks } from '../hooks/useTasks';
 import { useTaskStats } from '../hooks/useTasks';
 import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
-import { CreateTaskData, UpdateTaskData } from '../types/Task';
+import type { CreateTaskData, UpdateTaskData } from '../types/Task';
 
 const TaskList: React.FC = () => {
   const { tasks, loading, error, fetchTasks, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();

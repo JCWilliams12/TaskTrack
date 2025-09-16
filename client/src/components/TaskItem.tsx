@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Task } from '../types/Task';
+import type { Task, CreateTaskData } from '../types/Task';
+import TaskForm from './TaskForm';
 
 interface TaskItemProps {
   task: Task;
@@ -127,7 +128,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdate, onDelete, onToggleS
 
       {isEditing && (
         <TaskForm
-          onSubmit={async (updates) => {
+          onSubmit={async (updates: CreateTaskData) => {
             await onUpdate(task._id, updates);
             setIsEditing(false);
           }}

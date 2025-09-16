@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import axiosInstance from '../api/config';
 
 interface User {
@@ -9,7 +10,6 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -32,13 +32,11 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      setToken(storedToken);
       // Set default authorization header
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
       // Verify token and get user info
@@ -55,7 +53,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Token verification failed:', error);
       localStorage.removeItem('token');
-      setToken(null);
       delete axiosInstance.defaults.headers.common['Authorization'];
     } finally {
       setLoading(false);
@@ -67,7 +64,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await axiosInstance.post('/auth/login', { email, password });
       const { token: newToken, user: userData } = response.data;
       
-      setToken(newToken);
       setUser(userData);
       localStorage.setItem('token', newToken);
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
@@ -81,7 +77,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await axiosInstance.post('/auth/register', { username, email, password });
       const { token: newToken, user: userData } = response.data;
       
-      setToken(newToken);
       setUser(userData);
       localStorage.setItem('token', newToken);
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
@@ -92,14 +87,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    setToken(null);
     localStorage.removeItem('token');
     delete axiosInstance.defaults.headers.common['Authorization'];
   };
 
   const value = {
     user,
-    token,
     login,
     register,
     logout,

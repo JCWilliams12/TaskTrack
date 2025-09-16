@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../api/config';
-import { Task, TaskStats, CreateTaskData, UpdateTaskData } from '../types/Task';
+import type { Task, TaskStats, CreateTaskData, UpdateTaskData } from '../types/Task';
 
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);

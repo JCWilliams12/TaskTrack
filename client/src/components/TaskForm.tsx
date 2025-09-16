@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreateTaskData } from '../types/Task';
+import type { CreateTaskData } from '../types/Task';
 
 interface TaskFormProps {
   onSubmit: (taskData: CreateTaskData) => Promise<void>;
