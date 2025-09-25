@@ -12,7 +12,8 @@ dotenv.config();
 
 // CORS Configuration
 const corsOptions = {
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  //origin: process.env.CLIENT_URL || 'http://localhost:5173'
+  origin: process.env.CLIENT_URL || 'https://task-track-2xtlr3ehe-jcwilliams12s-projects.vercel.app/',
   credentials: true
 };
 app.use(cors(corsOptions));
