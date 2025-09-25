@@ -11,12 +11,31 @@ const app = express();
 dotenv.config();
 
 // CORS Configuration
+// List of allowed origins (your frontend's URL)
+const allowedOrigins = ['https://task-track-pi-eight.vercel.app'];
+
 const corsOptions = {
-  //origin: process.env.CLIENT_URL || 'http://localhost:5173'
-  origin: process.env.CLIENT_URL || 'https://task-track-pi-eight.vercel.app',
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Check if the incoming origin is in our allowed list
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Explicitly allow methods
   credentials: true
 };
+
+// Enable CORS for all routes
 app.use(cors(corsOptions));
+
+// const corsOptions = {
+//   //origin: process.env.CLIENT_URL || 'http://localhost:5173'
+//   origin: process.env.CLIENT_URL || 'https://task-track-pi-eight.vercel.app',
+//   credentials: true
+// };
+// app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
