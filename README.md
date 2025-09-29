@@ -4,20 +4,20 @@ A modern, full-stack task management application built with React, Node.js, Expr
 
 ## Features
 
-### 🔐 Authentication
+### Authentication
 - User registration and login
 - JWT-based authentication
 - Secure password hashing with bcrypt
 - Protected routes and API endpoints
 
-### 📋 Task Management
+### Task Management
 - Create, read, update, and delete tasks
 - Task status tracking (Pending, In Progress, Completed)
 - Priority levels (Low, Medium, High)
 - Due date management
 - Task descriptions
 
-### 🎨 User Interface
+### User Interface
 - Modern, responsive design
 - Beautiful gradient backgrounds
 - Interactive task cards with hover effects
@@ -25,7 +25,7 @@ A modern, full-stack task management application built with React, Node.js, Expr
 - Advanced filtering and sorting
 - Mobile-friendly interface
 
-### 📊 Analytics
+### Analytics
 - Task completion rate
 - Status breakdown
 - Priority distribution
@@ -50,6 +50,8 @@ A modern, full-stack task management application built with React, Node.js, Expr
 - **CORS** - Cross-origin resource sharing
 
 ## Getting Started
+
+( This Project is hosted on the web at https://task-track-2xtlr3ehe-jcwilliams12s-projects.vercel.app/ ) 
 
 ### Prerequisites
 - Node.js (v16 or higher)
