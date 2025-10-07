@@ -1,3 +1,22 @@
+TaskTrack Client
+================
+
+Scripts
+-------
+- dev: `npm run dev` - start Vite dev server
+- build: `npm run build` - build for production
+- preview: `npm run preview` - preview the production build
+
+Environment
+-----------
+Copy `env.example` to `.env` and set:
+- VITE_API_URL (defaults to http://localhost:5001)
+
+Notes
+-----
+- Authentication token is stored in localStorage and attached via axios interceptors.
+- API base URL is configured in `src/api/config.ts`.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

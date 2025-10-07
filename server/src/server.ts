@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import taskRoutes from './routes/tasks.js';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -34,8 +38,11 @@ const corsOptions = {
 };
 
 
-// Enable CORS for all routes
+// Enable CORS and standard security middlewares
 app.use(cors(corsOptions));
+app.use(helmet());
+app.use(morgan('combined'));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
 // const corsOptions = {
 //   //origin: process.env.CLIENT_URL || 'http://localhost:5173'
@@ -83,5 +90,9 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.send('TaskTrack API is running...');
 });
+
+// Not found and error handlers
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

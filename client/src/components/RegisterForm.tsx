@@ -42,7 +42,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
   return (
     <div className="auth-form">
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} aria-describedby={error ? 'register-error' : undefined}>
         <div className="form-group">
           <label htmlFor="username">Username</label>
           <input
@@ -90,7 +90,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
             disabled={loading}
           />
         </div>
-        {error && <div className="error-message">{error}</div>}
+        {error && <div id="register-error" className="error-message" role="alert" aria-live="assertive">{error}</div>}
         <button type="submit" disabled={loading} className="btn btn-primary">
           {loading ? 'Creating account...' : 'Register'}
         </button>

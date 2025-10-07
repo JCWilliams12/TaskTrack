@@ -29,7 +29,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
   return (
     <div className="auth-form">
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} aria-describedby={error ? 'login-error' : undefined}>
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
@@ -52,7 +52,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
             disabled={loading}
           />
         </div>
-        {error && <div className="error-message">{error}</div>}
+        {error && <div id="login-error" className="error-message" role="alert" aria-live="assertive">{error}</div>}
         <button type="submit" disabled={loading} className="btn btn-primary">
           {loading ? 'Logging in...' : 'Login'}
         </button>

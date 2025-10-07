@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axiosInstance from '../api/config';
+import * as tasksApi from '../api/tasks';
 import type { Task, TaskStats, CreateTaskData, UpdateTaskData } from '../types/Task';
 
 export const useTasks = () => {
@@ -11,14 +11,8 @@ export const useTasks = () => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
-      if (filters?.status) params.append('status', filters.status);
-      if (filters?.priority) params.append('priority', filters.priority);
-      if (filters?.sortBy) params.append('sortBy', filters.sortBy);
-      if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
-
-      const response = await axiosInstance.get(`/tasks?${params.toString()}`);
-      setTasks(response.data);
+      const data = await tasksApi.listTasks(filters);
+      setTasks(data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch tasks');
     } finally {
@@ -28,9 +22,9 @@ export const useTasks = () => {
 
   const createTask = async (taskData: CreateTaskData) => {
     try {
-      const response = await axiosInstance.post('/tasks', taskData);
-      setTasks(prev => [response.data, ...prev]);
-      return response.data;
+      const data = await tasksApi.createTask(taskData);
+      setTasks(prev => [data, ...prev]);
+      return data;
     } catch (err: any) {
       throw new Error(err.response?.data?.message || 'Failed to create task');
     }
@@ -38,9 +32,9 @@ export const useTasks = () => {
 
   const updateTask = async (id: string, taskData: UpdateTaskData) => {
     try {
-      const response = await axiosInstance.put(`/tasks/${id}`, taskData);
-      setTasks(prev => prev.map(task => task._id === id ? response.data : task));
-      return response.data;
+      const data = await tasksApi.updateTask(id, taskData);
+      setTasks(prev => prev.map(task => task._id === id ? data : task));
+      return data;
     } catch (err: any) {
       throw new Error(err.response?.data?.message || 'Failed to update task');
     }
@@ -48,7 +42,7 @@ export const useTasks = () => {
 
   const deleteTask = async (id: string) => {
     try {
-      await axiosInstance.delete(`/tasks/${id}`);
+      await tasksApi.deleteTask(id);
       setTasks(prev => prev.filter(task => task._id !== id));
     } catch (err: any) {
       throw new Error(err.response?.data?.message || 'Failed to delete task');
@@ -61,7 +55,6 @@ export const useTasks = () => {
       'in-progress': 'completed',
       'completed': 'pending'
     };
-    
     const newStatus = statusMap[currentStatus] || 'pending';
     return updateTask(id, { status: newStatus as any });
   };
@@ -87,8 +80,8 @@ export const useTaskStats = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get('/tasks/stats/summary');
-      setStats(response.data);
+      const data = await tasksApi.fetchStats();
+      setStats(data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch statistics');
     } finally {
