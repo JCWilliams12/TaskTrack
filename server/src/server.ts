@@ -10,23 +10,29 @@ const app = express();
 // Load environment variables from .env file
 dotenv.config();
 
-// CORS Configuration
-// List of allowed origins (your frontend's URL)
-const allowedOrigins = ['https://task-track-jcwilliams12s-projects.vercel.app/'];
-//aibdvawijdbv
+
+// 1. List your permanent, static URLs here
+const allowedOrigins = [
+  'https://task-track-jcwilliams12s-projects.vercel.app/', // <-- Your Production URL
+  'http://localhost:5173' // <-- For local development
+];
+
+// 2. Create a regex to match your Vercel preview URL pattern
+const previewUrlPattern = /^https:\/\/task-track-.*-jcwilliams12s-projects\.vercel\.app$/;
+
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    console.log('Incoming origin:', origin);
-    // Check if the incoming origin is in our allowed list
-    if (!origin || allowedOrigins.includes(origin)) {
+    // 3. Allow requests if the origin is in the list OR matches the pattern
+    if (!origin || allowedOrigins.includes(origin) || previewUrlPattern.test(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Explicitly allow methods
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true
 };
+
 
 // Enable CORS for all routes
 app.use(cors(corsOptions));
