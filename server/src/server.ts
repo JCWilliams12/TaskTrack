@@ -12,8 +12,8 @@ dotenv.config();
 
 // CORS Configuration
 // List of allowed origins (your frontend's URL)
-const allowedOrigins = ['https://task-track-pi-eight.vercel.app'];
-
+const allowedOrigins = ['https://task-track-9x1uodjpl-jcwilliams12s-projects.vercel.app'];
+//aibdvawijdbv
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     // Check if the incoming origin is in our allowed list
