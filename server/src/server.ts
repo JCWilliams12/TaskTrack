@@ -16,6 +16,7 @@ const allowedOrigins = ['https://task-track-9x1uodjpl-jcwilliams12s-projects.ver
 //aibdvawijdbv
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    console.log('Incoming origin:', origin);
     // Check if the incoming origin is in our allowed list
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
