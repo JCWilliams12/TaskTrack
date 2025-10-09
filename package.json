@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "TaskTrack - Full Stack Task Management Application",
   "scripts": {
-    "build": "npm run build:client && npm run build:server",
+    "build": "npm run build:client && npm run copy-client && npm run build:server",
     "build:client": "cd client && npm install && npm run build",
     "build:server": "cd server && npm install && npm run build",
+    "copy-client": "node -e \"const fs=require('fs');const path=require('path');const src='client/dist';const dest='server/client/dist';if(fs.existsSync(src)){fs.mkdirSync(dest,{recursive:true});const copy=(src,dest)=>{if(fs.statSync(src).isDirectory()){fs.mkdirSync(dest,{recursive:true});fs.readdirSync(src).forEach(file=>copy(path.join(src,file),path.join(dest,file)));}else{fs.copyFileSync(src,dest);}};copy(src,dest);console.log('Client copied to server directory');}else{console.log('Client dist not found');}\"",
     "start": "cd server && npm start",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "install-all": "cd client && npm install && cd ../server && npm install",
     "deploy": "npm run build && npm start",
-    "deploy:render": "npm run install-all && npm run build && npm start"
+    "deploy:render": "npm run install-all && npm run build && npm start",
+    "postinstall": "npm run install-all",
+    "render-build": "npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
