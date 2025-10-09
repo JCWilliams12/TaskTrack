@@ -18,26 +18,45 @@ const app = express();
 dotenv.config();
 
 
-// 1. List your permanent, static URLs here
+// CORS configuration for different deployment environments
 const allowedOrigins = [
-  'https://task-track-jcwilliams12s-projects.vercel.app/', // <-- Your Production URL
-  'http://localhost:5173' // <-- For local development
+  'https://task-track-jcwilliams12s-projects.vercel.app', // Vercel production
+  'http://localhost:5173', // Local development
+  'https://tasktrack-api-x8cx.onrender.com' // Render deployment
 ];
 
-// 2. Create a regex to match your Vercel preview URL pattern
-const previewUrlPattern = /^https:\/\/task-track-.*-jcwilliams12s-projects\.vercel\.app$/;
+// Regex patterns for dynamic URLs
+const vercelPreviewPattern = /^https:\/\/task-track-.*-jcwilliams12s-projects\.vercel\.app$/;
+const renderPattern = /^https:\/\/.*\.onrender\.com$/;
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // 3. Allow requests if the origin is in the list OR matches the pattern
-    if (!origin || allowedOrigins.includes(origin) || previewUrlPattern.test(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    console.log('🌐 CORS check for origin:', origin);
+    
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      console.log('✅ Allowing request with no origin');
+      return callback(null, true);
     }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ Origin in allowed list:', origin);
+      return callback(null, true);
+    }
+    
+    // Check if origin matches patterns
+    if (vercelPreviewPattern.test(origin) || renderPattern.test(origin)) {
+      console.log('✅ Origin matches pattern:', origin);
+      return callback(null, true);
+    }
+    
+    console.log('❌ CORS blocked origin:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  credentials: true,
+  optionsSuccessStatus: 200
 };
 
 
@@ -95,9 +114,16 @@ app.use('/api', (req, res, next) => {
     body: req.body,
     headers: {
       'content-type': req.headers['content-type'],
-      'authorization': req.headers['authorization'] ? 'Bearer ***' : 'none'
+      'authorization': req.headers['authorization'] ? 'Bearer ***' : 'none',
+      'origin': req.headers['origin'] || 'none'
     }
   });
+  next();
+});
+
+// Add general request logging for all requests
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.path} from ${req.headers['origin'] || 'no-origin'}`);
   next();
 });
 
