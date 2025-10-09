@@ -43,15 +43,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       setLoading(false);
     }
+
+    // Listen for token expiration events
+    const handleTokenExpiration = () => {
+      console.log('Token expired, logging out user');
+      logout();
+    };
+
+    window.addEventListener('tokenExpired', handleTokenExpiration);
+    
+    return () => {
+      window.removeEventListener('tokenExpired', handleTokenExpiration);
+    };
   }, []);
 
   const verifyToken = async () => {
     try {
       const { user } = await authApi.me();
       setUser(user);
-    } catch (_error) {
+    } catch (error: any) {
+      console.log('Token verification failed:', error.response?.status, error.message);
+      // Clear token and authorization header
       localStorage.removeItem('token');
       delete axiosInstance.defaults.headers.common['Authorization'];
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -85,12 +100,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     delete axiosInstance.defaults.headers.common['Authorization'];
   };
 
+  const isTokenExpired = (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp < currentTime;
+    } catch {
+      return true; // If we can't parse the token, consider it expired
+    }
+  };
+
+  const checkTokenValidity = () => {
+    const token = localStorage.getItem('token');
+    if (token && isTokenExpired(token)) {
+      console.log('Token is expired, logging out');
+      logout();
+      return false;
+    }
+    return !!token;
+  };
+
   const value = {
     user,
     login,
     register,
     logout,
-    loading
+    loading,
+    checkTokenValidity,
+    isTokenExpired
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

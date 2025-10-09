@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import * as tasksApi from '../api/tasks';
 import type { Task, TaskStats, CreateTaskData, UpdateTaskData } from '../types/Task';
 
 export const useTasks = () => {
+  const { checkTokenValidity } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTasks = async (filters?: { status?: string; priority?: string; sortBy?: string; sortOrder?: string }) => {
+    // Check token validity before making API call
+    if (!checkTokenValidity()) {
+      setError('Authentication required');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -21,6 +29,10 @@ export const useTasks = () => {
   };
 
   const createTask = async (taskData: CreateTaskData) => {
+    if (!checkTokenValidity()) {
+      throw new Error('Authentication required');
+    }
+
     try {
       const data = await tasksApi.createTask(taskData);
       setTasks(prev => [data, ...prev]);
@@ -31,6 +43,10 @@ export const useTasks = () => {
   };
 
   const updateTask = async (id: string, taskData: UpdateTaskData) => {
+    if (!checkTokenValidity()) {
+      throw new Error('Authentication required');
+    }
+
     try {
       const data = await tasksApi.updateTask(id, taskData);
       setTasks(prev => prev.map(task => task._id === id ? data : task));
@@ -41,6 +57,10 @@ export const useTasks = () => {
   };
 
   const deleteTask = async (id: string) => {
+    if (!checkTokenValidity()) {
+      throw new Error('Authentication required');
+    }
+
     try {
       await tasksApi.deleteTask(id);
       setTasks(prev => prev.filter(task => task._id !== id));
@@ -72,11 +92,17 @@ export const useTasks = () => {
 };
 
 export const useTaskStats = () => {
+  const { checkTokenValidity } = useAuth();
   const [stats, setStats] = useState<TaskStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStats = async () => {
+    if (!checkTokenValidity()) {
+      setError('Authentication required');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {

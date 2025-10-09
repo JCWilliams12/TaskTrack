@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
@@ -6,8 +6,24 @@ import TaskList from './components/TaskList';
 import './App.css';
 
 const AppContent: React.FC = () => {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, checkTokenValidity } = useAuth();
   const [isLoginMode, setIsLoginMode] = useState(true);
+
+  // Periodic token validation for idle time scenarios
+  useEffect(() => {
+    if (!user) return;
+
+    const validateTokenPeriodically = () => {
+      if (!checkTokenValidity()) {
+        console.log('Token validation failed, user will be logged out');
+      }
+    };
+
+    // Check token validity every 5 minutes
+    const interval = setInterval(validateTokenPeriodically, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [user, checkTokenValidity]);
 
   if (loading) {
     return (
