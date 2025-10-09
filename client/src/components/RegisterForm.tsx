@@ -15,24 +15,33 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
   const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('📝 Form: Submit button clicked');
     e.preventDefault();
     setError('');
 
+    console.log('📝 Form: Validating inputs...', { username, email, passwordLength: password.length, confirmPasswordLength: confirmPassword.length });
+
     if (password !== confirmPassword) {
+      console.log('❌ Form: Passwords do not match');
       setError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
+      console.log('❌ Form: Password too short');
       setError('Password must be at least 6 characters long');
       return;
     }
 
+    console.log('✅ Form: Validation passed, starting registration...');
     setLoading(true);
 
     try {
+      console.log('📝 Form: Calling register function...');
       await register(username, email, password);
+      console.log('✅ Form: Registration completed successfully');
     } catch (err: any) {
+      console.error('❌ Form: Registration failed:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -91,7 +100,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
           />
         </div>
         {error && <div id="register-error" className="error-message" role="alert" aria-live="assertive">{error}</div>}
-        <button type="submit" disabled={loading} className="btn btn-primary">
+        <button 
+          type="submit" 
+          disabled={loading} 
+          className="btn btn-primary"
+          onClick={() => console.log('🖱️ Button: Register button clicked')}
+        >
           {loading ? 'Creating account...' : 'Register'}
         </button>
       </form>
