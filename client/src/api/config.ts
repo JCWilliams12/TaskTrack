@@ -1,9 +1,11 @@
 import axios from 'axios';
 
+// Use relative URL for production (same domain) or absolute URL for development
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+const isProduction = import.meta.env.PROD;
 
 const axiosInstance = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: isProduction ? '/api' : `${API_URL}/api`,
 });
 
 axiosInstance.interceptors.request.use((config) => {

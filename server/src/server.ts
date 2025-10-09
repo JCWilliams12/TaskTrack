@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import taskRoutes from './routes/tasks.js';
 import helmet from 'helmet';
@@ -87,12 +89,53 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'TaskTrack API is running' });
 });
 
-app.get('/', (req, res) => {
-  res.send('TaskTrack API is running...');
+// Serve static files from the React app build directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientBuildPath = path.join(__dirname, '../../client/dist');
+
+// Serve static files (CSS, JS, images, etc.)
+app.use(express.static(clientBuildPath));
+
+// API root endpoint
+app.get('/api', (req, res) => {
+  res.json({ message: 'TaskTrack API is running', version: '1.0.0' });
 });
 
-// Not found and error handlers
-app.use(notFoundHandler);
+// Error handlers for API routes - use a function instead of pattern
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return notFoundHandler(req, res);
+  }
+  next();
+});
+
+// Serve React app for root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(clientBuildPath, 'index.html'), (err) => {
+    if (err) {
+      console.error('Error serving React app:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
+});
+
+// Catch-all handler for any other non-API routes
+app.use((req, res) => {
+  // Only serve React app for non-API routes
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(clientBuildPath, 'index.html'), (err) => {
+      if (err) {
+        console.error('Error serving React app:', err);
+        res.status(500).send('Error loading application');
+      }
+    });
+  } else {
+    res.status(404).json({ message: 'Route not found' });
+  }
+});
+
+// General error handler
 app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
