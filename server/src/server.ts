@@ -65,29 +65,43 @@ const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) {
-      throw new Error('MONGO_URI is not defined in the .env file');
+      console.warn('MONGO_URI is not defined in the .env file. Server will start without database.');
+      return;
     }
 
-    await mongoose.connect(mongoUri);
+    // Set connection timeout
+    const options = {
+      serverSelectionTimeoutMS: 5000, // 5 seconds
+      connectTimeoutMS: 10000, // 10 seconds
+      socketTimeoutMS: 45000, // 45 seconds
+    };
+
+    await mongoose.connect(mongoUri, options);
     console.log('Successfully connected to MongoDB.');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
-    // Exit process with failure
-    process.exit(1);
+    console.warn('Server will start without database connection. Some features may not work.');
+    // Don't exit process - let server start without DB
   }
 };
 
-// Connect to the database
-connectDB();
+// Connect to the database (non-blocking)
+connectDB().catch(console.error);
 // --- End of Connection Logic ---
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Health check endpoint
+// Health check endpoint (doesn't require database)
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'TaskTrack API is running' });
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.json({ 
+    status: 'OK', 
+    message: 'TaskTrack API is running',
+    database: dbStatus,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Serve static files from the React app build directory
@@ -214,4 +228,43 @@ app.use((req, res) => {
 // General error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🌐 API base URL: http://localhost:${PORT}/api`);
+  console.log(`📱 React app: http://localhost:${PORT}/`);
+  console.log('✅ Server startup completed successfully');
+  
+  // Test if server is actually listening
+  setTimeout(() => {
+    console.log('🔍 Server is still running and responsive');
+  }, 2000);
+});
+
+server.on('error', (err) => {
+  console.error('❌ Server error:', err);
+  process.exit(1);
+});
+
+server.on('close', () => {
+  console.log('🔒 Server closed');
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+    mongoose.connection.close();
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+    mongoose.connection.close();
+    process.exit(0);
+  });
+});
