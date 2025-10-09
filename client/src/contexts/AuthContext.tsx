@@ -15,6 +15,8 @@ interface AuthContextType {
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  checkTokenValidity: () => boolean;
+  isTokenExpired: (token: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
