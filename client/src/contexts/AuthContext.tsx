@@ -87,11 +87,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (username: string, email: string, password: string) => {
     try {
-      const { token, user } = await authApi.register(username, email, password);
+      console.log('🔄 Frontend: Starting registration...', { username, email });
+      const response = await authApi.register(username, email, password);
+      console.log('✅ Frontend: Registration response received:', response);
+      
+      const { token, user } = response;
+      console.log('🔑 Frontend: Setting user and token...', { user, hasToken: !!token });
+      
       setUser(user);
       localStorage.setItem('token', token);
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      console.log('✅ Frontend: Registration completed successfully');
     } catch (error: any) {
+      console.error('❌ Frontend: Registration error:', error);
+      console.error('❌ Frontend: Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       throw new Error(error.response?.data?.message || 'Registration failed');
     }
   };

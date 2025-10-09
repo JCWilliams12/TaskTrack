@@ -18,8 +18,15 @@ export const login = async (email: string, password: string): Promise<AuthRespon
 };
 
 export const register = async (username: string, email: string, password: string): Promise<AuthResponse> => {
-  const { data } = await axiosInstance.post<AuthResponse>('/auth/register', { username, email, password });
-  return data;
+  console.log('🌐 API: Making registration request...', { username, email });
+  try {
+    const response = await axiosInstance.post<AuthResponse>('/auth/register', { username, email, password });
+    console.log('✅ API: Registration response received:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('❌ API: Registration request failed:', error);
+    throw error;
+  }
 };
 
 export const me = async (): Promise<{ user: User }> => {
