@@ -110,20 +110,37 @@ A modern, full-stack task management application built with React, Node.js, Expr
 
 6. **Start the development servers**
 
+   **Option A: Separate Development Servers (Recommended for Development)**
+   
    **Terminal 1 - Backend**
    ```bash
    cd server
    npm run dev
    ```
+   Backend will run on `http://localhost:5001`
 
    **Terminal 2 - Frontend**
    ```bash
    cd client
    npm run dev
    ```
+   Frontend will run on `http://localhost:5173`
+
+   **Option B: Full-Stack Development (Server serves both API and React app)**
+   
+   **Terminal 1 - Build and Start Backend**
+   ```bash
+   cd server
+   npm run build
+   npm start
+   ```
+   Full application will be available at `http://localhost:5001`
 
 7. **Open the application**
-   Navigate to `http://localhost:5173` in your browser.
+   - **Separate servers**: Navigate to `http://localhost:5173` (frontend)
+   - **Full-stack**: Navigate to `http://localhost:5001` (backend serves React app)
+   - **API Health Check**: `http://localhost:5001/health`
+   - **API Documentation**: `http://localhost:5001/api`
 
 ## API Endpoints
 
@@ -206,20 +223,202 @@ TaskTrack/
 - `npm run build` - Build for production
 - `npm start` - Start production server
 - `npm test` - Run tests
+- `npm test -- --coverage` - Run tests with coverage report
+- `npm test -- --watch` - Run tests in watch mode
+- `npm test -- --verbose` - Run tests with detailed output
 
 **Client**
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm test` - Run tests
+- `npm test -- --coverage` - Run tests with coverage report
+- `npm test -- --watch` - Run tests in watch mode
+
+## Testing
+
+This project includes comprehensive unit tests for both frontend and backend components.
+
+### Test Structure
+
+**Backend Tests (Jest)**
+- **Location**: `server/src/tests/`
+- **Test Files**:
+  - `auth.test.ts` - Authentication functionality tests
+  - `auth.validation.test.ts` - Authentication validation tests
+  - `tasks.test.ts` - Task CRUD operations tests
+  - `tasks.access.test.ts` - Task access control and authorization tests
+  - `tasks.stats.test.ts` - Task statistics and analytics tests
+  - `tasks.validation.test.ts` - Task validation tests
+
+**Frontend Tests (Vitest)**
+- **Location**: `client/src/` (co-located with components)
+- **Test Files**:
+  - `components/LoginForm.test.tsx` - Login form component tests
+  - `components/RegisterForm.test.tsx` - Registration form component tests
+  - `contexts/AuthContext.test.tsx` - Authentication context tests
+  - `hooks/useTasks.test.tsx` - Custom tasks hook tests
+
+### Running Tests
+
+**Run All Backend Tests**
+```bash
+cd server
+npm test
+```
+
+**Run All Frontend Tests**
+```bash
+cd client
+npm test
+```
+
+**Run Tests with Coverage**
+```bash
+# Backend
+cd server
+npm test -- --coverage
+
+# Frontend
+cd client
+npm test -- --coverage
+```
+
+**Run Tests in Watch Mode**
+```bash
+# Backend
+cd server
+npm test -- --watch
+
+# Frontend
+cd client
+npm test -- --watch
+```
+
+**Run Specific Test Files**
+```bash
+# Backend - Run specific test file
+cd server
+npm test -- auth.test.ts
+
+# Frontend - Run specific test file
+cd client
+npm test -- LoginForm.test.tsx
+```
+
+### Test Coverage
+
+Both test suites generate detailed coverage reports:
+
+- **Backend Coverage**: Generated in `server/coverage/` directory
+- **Frontend Coverage**: Generated in `client/coverage/` directory
+
+Coverage reports include:
+- Line coverage percentage
+- Branch coverage analysis
+- Function coverage details
+- HTML reports for detailed analysis
+
+### Test Configuration
+
+**Backend (Jest)**
+- Uses Jest with TypeScript support
+- MongoDB Memory Server for database testing
+- Comprehensive middleware and controller testing
+- API endpoint testing with Supertest
+
+**Frontend (Vitest)**
+- Uses Vitest with React Testing Library
+- jsdom environment for DOM testing
+- Component rendering and interaction testing
+- Hook and context testing
+
+### Writing Tests
+
+**Backend Test Example**
+```typescript
+// server/src/tests/auth.test.ts
+describe('Authentication', () => {
+  test('should register a new user', async () => {
+    const userData = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123'
+    };
+    
+    const response = await request(app)
+      .post('/api/auth/register')
+      .send(userData)
+      .expect(201);
+      
+    expect(response.body.token).toBeDefined();
+  });
+});
+```
+
+**Frontend Test Example**
+```typescript
+// client/src/components/LoginForm.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { LoginForm } from './LoginForm';
+
+test('renders login form', () => {
+  render(<LoginForm />);
+  expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+});
+```
+
+### Development Workflow
+
+**Before making changes:**
+1. Run tests to ensure everything is working
+   ```bash
+   # Backend tests
+   cd server && npm test
+   
+   # Frontend tests  
+   cd client && npm test
+   ```
+
+**During development:**
+1. Use watch mode for continuous testing
+   ```bash
+   # Backend watch mode
+   cd server && npm test -- --watch
+   
+   # Frontend watch mode
+   cd client && npm test -- --watch
+   ```
+
+**Before committing:**
+1. Run all tests with coverage
+   ```bash
+   # Backend coverage
+   cd server && npm test -- --coverage
+   
+   # Frontend coverage
+   cd client && npm test -- --coverage
+   ```
+
+2. Ensure all tests pass and coverage meets requirements
 
 ### Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. **Add tests for new functionality**
+5. **Ensure all existing tests pass**
+6. **Run coverage reports to verify test quality**
+7. Submit a pull request
+
+**Testing Requirements:**
+- New features must include appropriate unit tests
+- Test coverage should not decrease
+- All tests must pass before submitting PR
+- Include both positive and negative test cases
 
 ## License
 
