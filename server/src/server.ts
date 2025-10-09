@@ -107,25 +107,76 @@ app.get('/health', (req, res) => {
 // Serve static files from the React app build directory
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// Try multiple possible paths for the client build directory
+
+// Get all possible paths for different deployment scenarios
 const possiblePaths = [
+  // Local development paths
   path.join(__dirname, '../../client/dist'),           // Development: server/dist -> client/dist
   path.join(__dirname, '../client/dist'),              // Alternative: server/dist -> client/dist
   path.join(process.cwd(), 'client/dist'),             // Production: from project root
   path.join(process.cwd(), 'dist/client'),             // Alternative production path
+  
+  // Render deployment paths (common structures)
+  path.join(process.cwd(), 'client/dist'),             // Render: project root
+  path.join(process.cwd(), '../client/dist'),          // Render: one level up
+  path.join(process.cwd(), '../../client/dist'),       // Render: two levels up
+  
+  // Alternative deployment structures
+  path.join(__dirname, 'client/dist'),                 // Same directory
+  path.join(__dirname, '../dist/client'),              // Parent dist
+  path.join(__dirname, '../../dist/client'),           // Grandparent dist
+  
+  // Root level paths
+  path.join(process.cwd(), 'dist'),                    // Root dist
+  path.join(process.cwd(), 'build'),                   // Root build
+  path.join(__dirname, 'dist'),                        // Server dist
+  path.join(__dirname, 'build'),                       // Server build
 ];
+
+console.log('🔍 Searching for client build directory...');
+console.log('Current working directory:', process.cwd());
+console.log('Server directory:', __dirname);
 
 let clientBuildPath: string | null = null;
 for (const possiblePath of possiblePaths) {
+  console.log(`Checking: ${possiblePath}`);
   if (fs.existsSync(possiblePath)) {
-    clientBuildPath = possiblePath;
-    break;
+    // Verify it contains index.html
+    const indexPath = path.join(possiblePath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      clientBuildPath = possiblePath;
+      console.log(`✅ Found client build at: ${possiblePath}`);
+      break;
+    } else {
+      console.log(`❌ Directory exists but no index.html: ${possiblePath}`);
+    }
+  } else {
+    console.log(`❌ Directory not found: ${possiblePath}`);
   }
 }
 
 if (!clientBuildPath) {
   console.warn('Could not find client build directory. Tried paths:', possiblePaths);
   console.warn('Server will run without React app. Please build the client first.');
+  
+  // Debug: List current directory structure
+  console.log('🔍 Debugging directory structure:');
+  try {
+    const cwdContents = fs.readdirSync(process.cwd());
+    console.log('Contents of current working directory:', cwdContents);
+    
+    const serverDirContents = fs.readdirSync(__dirname);
+    console.log('Contents of server directory:', serverDirContents);
+    
+    // Check if there's a parent directory
+    const parentDir = path.dirname(process.cwd());
+    if (fs.existsSync(parentDir)) {
+      const parentContents = fs.readdirSync(parentDir);
+      console.log('Contents of parent directory:', parentContents);
+    }
+  } catch (error) {
+    console.error('Error reading directory structure:', error);
+  }
 }
 
 console.log('Serving React app from:', clientBuildPath);
