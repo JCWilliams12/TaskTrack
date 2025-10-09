@@ -89,6 +89,18 @@ const connectDB = async () => {
 connectDB().catch(console.error);
 // --- End of Connection Logic ---
 
+// Add request logging middleware for debugging
+app.use('/api', (req, res, next) => {
+  console.log(`📨 API Request: ${req.method} ${req.path}`, {
+    body: req.body,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'authorization': req.headers['authorization'] ? 'Bearer ***' : 'none'
+    }
+  });
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
